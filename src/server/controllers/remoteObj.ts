@@ -41,5 +41,5 @@ export function getRemoteObj(req: Request, res: Response) {
         return;
     }
 
-    res.jsonp(dataObject[obj]);
+    res.json(dataObject[obj]);
 }
