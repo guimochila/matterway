@@ -1,4 +1,4 @@
-import { Provider } from '../state/ContextProvider';
+import Provider from '../mylib/Provider';
 
 // Context.A
 
@@ -10,16 +10,18 @@ export interface IRemoteObj {
     returnFn: () => (value: number) => number;
 }
 
+const localVariable = 123;
+
 const myObj: IRemoteObj = {
     name: 'A',
     age: 1,
     filter: /\d+/,
     add: (value: number) => {
-        return 1 + value;
+        return localVariable + value;
     },
     returnFn: () => {
         return function (value: number) {
-            return 1 + value;
+            return localVariable + value;
         };
     },
 };
