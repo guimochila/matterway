@@ -1,5 +1,4 @@
-import { Socket } from 'socket.io';
-import { Server } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 
 /* 
     Socket.io - initializing server
@@ -31,18 +30,25 @@ io.on('connection', (socket: Socket) => {
         }
     });
 
+    /* 
+      Resolve the object name - Make sure it exists
+    */
     socket.on('resolve', (name: string) => {
         if (!global.hasOwnProperty(name)) {
             socket.emit('notResolved');
         }
-        socket.emit('objNameId', global[name]);
     });
 
-    // socket.on('resolveProp', (name: string, prop: any) => {
-    //     socket.to(global[name]).emit('providerResolveProp', prop);
-    // });
 
-    // socket.on('resolvedProp', (res: any) => {
-    //     socket.emit('consumerPropResolved', res);
-    // });
+    /* 
+      Emit to the correct channel(socket.id) to 
+      resolve the prop requested
+    */
+    socket.on('resolveProp', (name: string, prop: any) => {
+        socket.to(global[name]).emit('providerResolveProp', prop);
+    });
+
+    socket.on('providerPropResolved', (res: any) => {
+      socket.emit('consumerPropResolved', res);
+    })
 });

@@ -6,7 +6,7 @@ ioClient.on('connect', () => {
     console.log('Provider connected to websocket server');
 });
 
-function Provider<T>(objName: string, remoteObj: T) {
+function Provider<T extends {[k in keyof T]: any}>(objName: string, remoteObj: T) {
     if (!objName || !remoteObj) {
         throw new Error('Parameter objName and remoteObj are required.');
     }
@@ -22,22 +22,28 @@ function Provider<T>(objName: string, remoteObj: T) {
     ioClient.emit('notify', objName, notify);
 
     /* Resolve Props */
-    // ioClient.on('providerResolveProp', (prop: string) => {
-    //     console.log('Inside provierResolver');
-    //     // @ts-ignore
-    //     if (!remoteObj.hasOwnProperty(prop)) {
-    //         ioClient.emit('resolvePropFailed');
-    //     }
+    ioClient.on('providerResolveProp', (prop: string) => {
+        // @ts-ignore
+        if (!remoteObj.hasOwnProperty(prop)) {
+            ioClient.emit('resolvePropFailed');
+            return;
+        }
 
-    //     // @ts-ignore
-    //     const propType = Object.prototype.toString.call(remoteObj[prop]);
-    //     let result;
-    //     if (propType.includes('String')) {
-    //         result = remoteObj[prop];
-    //     }
+        let result;
+        // @ts-ignore
+        const propType = typeof remoteObj[prop];
 
-    //     ioClient.emit('resolvedProp', result);
-    // });
+        switch(propType) {
+          case 'string':
+          case 'number': 
+          case 'boolean':
+            // @ts-ignore
+            result = remoteObj[prop];
+            break;
+        }
+
+        ioClient.emit('providerPropResolved', result)
+      });
 }
 
 export default Provider;
